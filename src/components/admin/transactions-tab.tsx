@@ -69,8 +69,10 @@ export function TransactionsTab() {
   const [adminNote, setAdminNote] = useState('');
   const [processingAction, setProcessingAction] = useState<string | null>(null);
 
-  const fetchRequests = async () => {
-    setLoading(true);
+  const fetchRequests = async (isBackground = false) => {
+    if (!isBackground) {
+      setLoading(true);
+    }
     try {
       const params = new URLSearchParams();
       if (statusFilter !== 'All') params.set('status', statusFilter);
@@ -88,16 +90,18 @@ export function TransactionsTab() {
       console.error(err);
       toast.error('পেমেন্ট রিকোয়েস্ট লোড করতে নেটওয়ার্ক সমস্যা হয়েছে');
     } finally {
-      setLoading(false);
+      if (!isBackground) {
+        setLoading(false);
+      }
     }
   };
 
   useEffect(() => {
-    fetchRequests();
+    fetchRequests(false);
 
-    // Auto-refresh every 20 seconds to fetch new transaction requests
+    // Auto-refresh every 20 seconds to fetch new transaction requests silently in the background
     const interval = setInterval(() => {
-      fetchRequests();
+      fetchRequests(true);
     }, 20000);
     return () => clearInterval(interval);
   }, [statusFilter, methodFilter]);

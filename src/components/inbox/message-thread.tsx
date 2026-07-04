@@ -261,6 +261,8 @@ export function MessageThread({
   const conversationId = conversation?.id;
   const hasUnread = (conversation?.unread_count ?? 0) > 0;
 
+  const lastConversationIdRef = useRef<string | null>(null);
+
   // Fetch messages whenever the selected conversation changes. Kept
   // separate from the unread-reset effect so that incoming messages
   // arriving while the thread is open don't trigger a full refetch —
@@ -271,8 +273,13 @@ export function MessageThread({
     const supabase = createClient();
     let cancelled = false;
 
+    const isNewConversation = lastConversationIdRef.current !== conversationId;
+    lastConversationIdRef.current = conversationId;
+
     (async () => {
-      setLoading(true);
+      if (isNewConversation) {
+        setLoading(true);
+      }
 
       const { data, error } = await supabase
         .from("messages")
