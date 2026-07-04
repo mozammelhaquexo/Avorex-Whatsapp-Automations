@@ -9,8 +9,8 @@ const transporter = nodemailer.createTransport({
 });
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-const BRAND_NAME = "Avorex";
-const BRAND_FULL = "Avorex Whatsapp Automation";
+const BRAND_NAME = "Avorex Technologies";
+const BRAND_FULL = "Avorex Technologies WhatsApp Automation";
 const FROM_EMAIL = process.env.GMAIL_USER || "noreply@avorex.com";
 const SUPPORT_WHATSAPP = "01575813644";
 
@@ -20,18 +20,8 @@ const SUPPORT_WHATSAPP = "01575813644";
 
 function wrap(title: string, body: string, opts?: { preheader?: string; brandName?: string; logoUrl?: string }): string {
   const brand = opts?.brandName || BRAND_NAME;
-  const logoHtml = opts?.logoUrl 
-    ? `<img src="${opts.logoUrl}" alt="${brand}" style="max-height:48px;max-width:200px;display:block;margin:0 auto;"/>`
-    : `<table cellpadding="0" cellspacing="0" style="margin:0 auto;">
-<tr>
-  <td style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#6366f1 0%,#8b5cf6 50%,#a855f7 100%);text-align:center;vertical-align:middle;">
-    <span style="color:#fff;font-weight:800;font-size:22px;line-height:48px;font-family:'SF Pro Display',sans-serif;">${brand.charAt(0).toUpperCase()}</span>
-  </td>
-  <td style="padding-left:14px;vertical-align:middle;">
-    <span style="color:#ffffff;font-weight:700;font-size:24px;letter-spacing:-0.8px;font-family:'SF Pro Display',sans-serif;">${brand}</span>
-  </td>
-</tr>
-</table>`;
+  const logoUrl = opts?.logoUrl || `${SITE_URL}/logo.jpg`;
+  const logoHtml = `<img src="${logoUrl}" alt="${brand}" style="max-height:48px;max-width:200px;display:block;margin:0 auto;border-radius:8px;"/>`;
 
   return `<!DOCTYPE html>
 <html lang="en">
