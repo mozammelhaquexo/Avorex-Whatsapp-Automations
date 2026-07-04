@@ -302,11 +302,11 @@ export function TransactionsTab() {
           </CardContent>
         </Card>
       ) : (
-        <div className="border border-zinc-850 bg-zinc-950/20 rounded-2xl overflow-hidden">
+        <div className="border border-zinc-200 dark:border-zinc-850 bg-zinc-50/50 dark:bg-zinc-950/20 rounded-2xl overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-sm">
               <thead>
-                <tr className="border-b border-zinc-850 bg-zinc-950/60 text-xs text-muted-foreground uppercase font-semibold">
+                <tr className="border-b border-zinc-200 dark:border-zinc-850 bg-zinc-100/60 dark:bg-zinc-950/60 text-xs text-muted-foreground uppercase font-semibold">
                   <th className="px-5 py-4">Request ID / Date</th>
                   <th className="px-5 py-4">User</th>
                   <th className="px-5 py-4">Package</th>
@@ -317,12 +317,12 @@ export function TransactionsTab() {
                   <th className="px-5 py-4 text-center">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zinc-850">
+              <tbody className="divide-y divide-zinc-200 dark:divide-zinc-850">
                 {requests.map((req) => (
                   <tr 
                     key={req.id} 
                     className={cn(
-                      "hover:bg-zinc-900/20 transition-all border-l-2",
+                      "hover:bg-zinc-100/40 dark:hover:bg-zinc-900/20 transition-all border-l-2",
                       req.status === 'Pending' 
                         ? "bg-amber-500/[0.03] border-l-amber-500/80 shadow-[inset_1px_0_0_0_rgba(245,158,11,0.15)] animate-pulse-slow" 
                         : "border-l-transparent"
@@ -363,7 +363,7 @@ export function TransactionsTab() {
                     <td className="px-5 py-4">{getStatusBadge(req.status)}</td>
                     <td className="px-5 py-4 text-center">
                       <div className="flex items-center justify-center gap-1.5">
-                        <Button onClick={() => openDetails(req)} size="sm" variant="outline" className="text-xs bg-zinc-900 border-zinc-800 text-zinc-300 hover:text-foreground">
+                        <Button onClick={() => openDetails(req)} size="sm" variant="outline" className="text-xs bg-zinc-100 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-300 hover:text-foreground">
                           Review
                         </Button>
                         <Button 
@@ -388,10 +388,10 @@ export function TransactionsTab() {
       {/* Review Drawer / Modal */}
       {selectedRequest && (
         <div className="fixed inset-0 z-50 flex items-center justify-end bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="w-full max-w-lg h-full bg-zinc-950 border-l border-zinc-850 p-6 flex flex-col justify-between shadow-2xl relative animate-in slide-in-from-right duration-300">
+          <div className="w-full max-w-lg h-full bg-card border-l border-zinc-200 dark:border-zinc-850 p-6 flex flex-col justify-between shadow-2xl relative animate-in slide-in-from-right duration-300">
             {/* Header */}
             <div>
-              <div className="flex items-center justify-between border-b border-zinc-850 pb-4">
+              <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-850 pb-4">
                 <div>
                   <h3 className="text-lg font-black text-foreground">Review Transaction</h3>
                   <p className="text-xs text-muted-foreground font-mono mt-0.5">{selectedRequest.request_id}</p>
@@ -408,7 +408,7 @@ export function TransactionsTab() {
                   <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
                     <User className="h-3.5 w-3.5" /> User Information
                   </h4>
-                  <div className="bg-zinc-900/40 border border-zinc-900 p-4 rounded-xl space-y-2 text-sm">
+                  <div className="bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-900 p-4 rounded-xl space-y-2 text-sm">
                     <div className="flex justify-between"><span className="text-muted-foreground">Name:</span> <span className="font-semibold">{selectedRequest.user_name}</span></div>
                     <div className="flex justify-between"><span className="text-muted-foreground">Email:</span> <span>{selectedRequest.user_email}</span></div>
                     <div className="flex justify-between"><span className="text-muted-foreground">User ID:</span> <span className="font-mono text-xs text-zinc-500">{selectedRequest.user_id}</span></div>
@@ -420,16 +420,16 @@ export function TransactionsTab() {
                   <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
                     <Smartphone className="h-3.5 w-3.5" /> Payment Details
                   </h4>
-                  <div className="bg-zinc-900/40 border border-zinc-900 p-4 rounded-xl space-y-2 text-sm">
+                  <div className="bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-900 p-4 rounded-xl space-y-2 text-sm">
                     <div className="flex justify-between"><span className="text-muted-foreground">Payment Method:</span> <span className="font-bold uppercase text-primary">{selectedRequest.payment_method}</span></div>
                     <div className="flex justify-between"><span className="text-muted-foreground">Sender Number:</span> <span className="font-semibold">{selectedRequest.sender_number}</span></div>
                     <div className="flex justify-between"><span className="text-muted-foreground">Transaction ID:</span> <span className="font-mono font-black text-primary text-base">{selectedRequest.transaction_id}</span></div>
                     <div className="flex justify-between"><span className="text-muted-foreground">Paid Amount:</span> <span className="font-bold text-foreground">৳{selectedRequest.paid_amount} BDT</span></div>
                     <div className="flex justify-between"><span className="text-muted-foreground">Expected Amount:</span> <span className="text-zinc-400">৳{selectedRequest.expected_amount} BDT</span></div>
                     {selectedRequest.payment_note && (
-                      <div className="pt-2 border-t border-zinc-850 mt-2">
+                      <div className="pt-2 border-t border-zinc-200 dark:border-zinc-850 mt-2">
                         <span className="text-xs text-muted-foreground block mb-1">User Payment Note:</span>
-                        <p className="text-xs text-zinc-300 italic">"{selectedRequest.payment_note}"</p>
+                        <p className="text-xs text-zinc-550 dark:text-zinc-300 italic">"{selectedRequest.payment_note}"</p>
                       </div>
                     )}
                   </div>
@@ -440,7 +440,7 @@ export function TransactionsTab() {
                   <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
                     <Tag className="h-3.5 w-3.5" /> Selected Package
                   </h4>
-                  <div className="bg-zinc-900/40 border border-zinc-900 p-4 rounded-xl space-y-2 text-sm">
+                  <div className="bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-900 p-4 rounded-xl space-y-2 text-sm">
                     <div className="flex justify-between"><span className="text-muted-foreground">Package Name:</span> <span className="font-semibold text-foreground">{selectedRequest.package_name}</span></div>
                     <div className="flex justify-between"><span className="text-muted-foreground">Duration:</span> <span>{selectedRequest.package_duration}</span></div>
                     <div className="flex justify-between"><span className="text-muted-foreground">Package ID:</span> <span className="font-mono text-xs text-zinc-500">{selectedRequest.package_id}</span></div>
@@ -457,14 +457,14 @@ export function TransactionsTab() {
                     placeholder="Add feedback, reject reasons, or verification details..."
                     value={adminNote}
                     onChange={(e) => setAdminNote(e.target.value)}
-                    className="bg-zinc-900 border-zinc-800 text-sm focus:border-primary min-h-[80px]"
+                    className="bg-zinc-100 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-sm focus:border-primary min-h-[80px]"
                   />
                 </div>
               </div>
             </div>
 
             {/* Actions footer */}
-            <div className="border-t border-zinc-850 pt-4 flex flex-col gap-2">
+            <div className="border-t border-zinc-200 dark:border-zinc-850 pt-4 flex flex-col gap-2">
               <div className="flex gap-2">
                 <Button
                   onClick={() => handleAction(selectedRequest.id, 'approve')}
@@ -485,7 +485,7 @@ export function TransactionsTab() {
                 onClick={() => handleAction(selectedRequest.id, 'review')}
                 disabled={processingAction !== null}
                 variant="outline"
-                className="w-full bg-zinc-900 border-zinc-800 text-zinc-300"
+                className="w-full bg-zinc-100 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-300"
               >
                 {processingAction === 'review' ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Mark Under Review'}
               </Button>

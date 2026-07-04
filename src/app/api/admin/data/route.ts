@@ -36,35 +36,6 @@ export async function GET(_request: Request) {
       profiles = data || [];
     }
 
-    // Try to enrich profiles with plan from accounts
-    const formattedProfiles = await Promise.all(
-      profiles.map(async (p: any) => {
-        let plan = "Standard";
-        try {
-          const { data: acct } = await db
-            .from("accounts")
-            .select("plan")
-            .eq("id", p.account_id)
-            .maybeSingle();
-          plan = acct?.plan || "Standard";
-        } catch {
-          // ignore
-        }
-        return {
-          id: p.id,
-          user_id: p.user_id,
-          full_name: p.full_name,
-          email: p.email,
-          account_role: p.account_role,
-          created_at: p.created_at,
-          account_id: p.account_id,
-          menu_access: p.menu_access || null,
-          plan,
-          last_login_at: p.last_login_at || null,
-        };
-      })
-    );
-
     // 2. Fetch all accounts — try full columns first, fallback to safe set
     let accounts: any[] = [];
     try {
@@ -81,6 +52,28 @@ export async function GET(_request: Request) {
         .order("created_at", { ascending: false });
       accounts = (data || []).map((a: any) => ({ ...a, plan: "Standard", license_key: null }));
     }
+
+    // Create an in-memory map of account plan for fast O(1) lookups
+    const accountsPlanMap = new Map<string, string>(
+      accounts.map((a: any) => [a.id, a.plan])
+    );
+
+    // Try to enrich profiles with plan from accounts
+    const formattedProfiles = profiles.map((p: any) => {
+      const plan = accountsPlanMap.get(p.account_id) || "Standard";
+      return {
+        id: p.id,
+        user_id: p.user_id,
+        full_name: p.full_name,
+        email: p.email,
+        account_role: p.account_role,
+        created_at: p.created_at,
+        account_id: p.account_id,
+        menu_access: p.menu_access || null,
+        plan,
+        last_login_at: p.last_login_at || null,
+      };
+    });
 
     // 3. Fetch all license keys
     let licenseKeys: any[] = [];
