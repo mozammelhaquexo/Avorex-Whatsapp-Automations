@@ -142,8 +142,8 @@ export function BrandingSettingsTab() {
 
       <form onSubmit={handleSave} className="space-y-6">
         {/* Core Branding Card */}
-        <Card className="border-zinc-200 dark:border-zinc-850 bg-zinc-50/50 dark:bg-zinc-950/20">
-          <CardHeader className="pb-3 border-b border-zinc-200 dark:border-zinc-900 bg-zinc-100/40 dark:bg-zinc-950/40">
+        <Card className="border-border bg-card/40">
+          <CardHeader className="pb-3 border-b border-border bg-muted/40">
             <CardTitle className="text-base font-black text-foreground flex items-center gap-1.5">
               <Building2 className="h-4.5 w-4.5 text-zinc-400" />
               সফটওয়্যার ও ব্র্যান্ডিং ইনফো
@@ -158,7 +158,7 @@ export function BrandingSettingsTab() {
                   value={softwareName} 
                   onChange={e => setSoftwareName(e.target.value)} 
                   placeholder="Avorex Whatsapp Automation"
-                  className="bg-zinc-100 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-foreground"
+                  className="bg-card border-input text-foreground font-medium"
                 />
               </div>
               <div className="space-y-1.5">
@@ -168,7 +168,7 @@ export function BrandingSettingsTab() {
                   value={brandName} 
                   onChange={e => setBrandName(e.target.value)} 
                   placeholder="AVX"
-                  className="bg-zinc-100 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-foreground"
+                  className="bg-card border-input text-foreground font-medium"
                 />
               </div>
             </div>
@@ -179,7 +179,7 @@ export function BrandingSettingsTab() {
                 value={supportWhatsapp} 
                 onChange={e => setSupportWhatsapp(e.target.value)} 
                 placeholder="01754967976"
-                className="bg-zinc-100 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-foreground"
+                className="bg-card border-input text-foreground font-medium"
               />
               <span className="text-[11px] text-zinc-500">পেমেন্ট রিকোয়েস্ট জমার পর কাস্টমার এই নম্বরে নক করার বাটন পাবে।</span>
             </div>
@@ -187,8 +187,8 @@ export function BrandingSettingsTab() {
         </Card>
 
         {/* Payment Configuration Card */}
-        <Card className="border-zinc-200 dark:border-zinc-850 bg-zinc-50/50 dark:bg-zinc-950/20">
-          <CardHeader className="pb-3 border-b border-zinc-200 dark:border-zinc-900 bg-zinc-100/40 dark:bg-zinc-950/40">
+        <Card className="border-border bg-card/40">
+          <CardHeader className="pb-3 border-b border-border bg-muted/40">
             <CardTitle className="text-base font-black text-foreground flex items-center gap-1.5">
               <Smartphone className="h-4.5 w-4.5 text-zinc-400" />
               ম্যানুয়াল পেমেন্ট ইনফরমেশন (Send Money Numbers)
@@ -203,7 +203,7 @@ export function BrandingSettingsTab() {
                   value={bkashNumber} 
                   onChange={e => setBkashNumber(e.target.value)} 
                   placeholder="01754967976"
-                  className="bg-zinc-100 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-foreground font-mono"
+                  className="bg-card border-input text-foreground font-medium font-mono"
                 />
               </div>
               <div className="space-y-1.5">
@@ -213,7 +213,7 @@ export function BrandingSettingsTab() {
                   value={nagadNumber} 
                   onChange={e => setNagadNumber(e.target.value)} 
                   placeholder="01754967976"
-                  className="bg-zinc-100 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-foreground font-mono"
+                  className="bg-card border-input text-foreground font-medium font-mono"
                 />
               </div>
               <div className="space-y-1.5">
@@ -223,7 +223,7 @@ export function BrandingSettingsTab() {
                   value={rocketNumber} 
                   onChange={e => setRocketNumber(e.target.value)} 
                   placeholder="01754967976"
-                  className="bg-zinc-100 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-foreground font-mono"
+                  className="bg-card border-input text-foreground font-medium font-mono"
                 />
               </div>
             </div>
@@ -236,7 +236,7 @@ export function BrandingSettingsTab() {
                   value={paymentType} 
                   onChange={e => setPaymentType(e.target.value)} 
                   placeholder="Send Money"
-                  className="bg-zinc-100 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-foreground"
+                  className="bg-card border-input text-foreground font-medium"
                 />
               </div>
               <div className="grid grid-cols-2 gap-2">
@@ -247,7 +247,7 @@ export function BrandingSettingsTab() {
                     value={currency} 
                     onChange={e => setCurrency(e.target.value)} 
                     placeholder="BDT"
-                    className="bg-zinc-100 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-foreground"
+                    className="bg-card border-input text-foreground font-medium"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -257,7 +257,7 @@ export function BrandingSettingsTab() {
                     value={currencySymbol} 
                     onChange={e => setCurrencySymbol(e.target.value)} 
                     placeholder="৳"
-                    className="bg-zinc-100 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-foreground"
+                    className="bg-card border-input text-foreground font-medium"
                   />
                 </div>
               </div>
@@ -271,7 +271,7 @@ export function BrandingSettingsTab() {
                   value={defaultCountry} 
                   onChange={e => setDefaultCountry(e.target.value)} 
                   placeholder="Bangladesh"
-                  className="bg-zinc-100 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-foreground"
+                  className="bg-card border-input text-foreground font-medium"
                 />
               </div>
             </div>
@@ -283,7 +283,7 @@ export function BrandingSettingsTab() {
                 value={paymentInstruction} 
                 onChange={e => setPaymentInstruction(e.target.value)} 
                 placeholder="পেমেন্ট করার নিয়মাবলী..."
-                className="bg-zinc-100 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-foreground min-h-[100px] text-sm"
+                className="bg-card border-input text-foreground font-medium min-h-[100px] text-sm"
               />
             </div>
           </CardContent>

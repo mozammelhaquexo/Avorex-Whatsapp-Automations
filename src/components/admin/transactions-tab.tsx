@@ -99,93 +99,12 @@ export function TransactionsTab() {
     const interval = setInterval(() => {
       fetchRequests();
     }, 20000);
-
     return () => clearInterval(interval);
   }, [statusFilter, methodFilter]);
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
+  const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     fetchRequests();
-  };
-
-  const handleAction = async (requestId: string, action: 'approve' | 'reject' | 'review') => {
-    setProcessingAction(action);
-    try {
-      const res = await fetch('/api/admin/payment-requests', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          requestId,
-          action,
-          adminNote: adminNote.trim()
-        })
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || 'অ্যাকশন প্রসেস করতে ব্যর্থ হয়েছে');
-      }
-
-      toast.success(
-        action === 'approve' ? 'পেমেন্ট সফলভাবে অনুমোদিত হয়েছে ও লাইসেন্স জেনারেট হয়েছে!' :
-        action === 'reject' ? 'পেমেন্ট রিকোয়েস্ট বাতিল করা হয়েছে!' :
-        'পেমেন্ট রিকোয়েস্ট আন্ডার রিভিউতে রাখা হয়েছে।'
-      );
-
-      setSelectedRequest(null);
-      setAdminNote('');
-      fetchRequests();
-    } catch (err: any) {
-      toast.error(err.message || 'কিছু ভুল হয়েছে');
-    } finally {
-      setProcessingAction(null);
-    }
-  };
-
-  const handleDeleteRequest = async (id: string) => {
-    if (!confirm('আপনি কি নিশ্চিত যে এই পেমেন্ট ট্রানজেকশনটি মুছে ফেলতে চান?')) return;
-    try {
-      const res = await fetch('/api/admin/payment-requests', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'deleteRequest',
-          requestId: id
-        })
-      });
-      if (res.ok) {
-        toast.success('পেমেন্ট ট্রানজেকশনটি মুছে ফেলা হয়েছে।');
-        fetchRequests();
-      } else {
-        const data = await res.json();
-        throw new Error(data.error || 'মুছে ফেলতে ব্যর্থ হয়েছে');
-      }
-    } catch (err: any) {
-      toast.error(err.message);
-    }
-  };
-
-  const handleDeleteAllRequests = async () => {
-    if (!confirm('সতর্কতা! আপনি কি সমস্ত পেমেন্ট ট্রানজেকশন মুছে ফেলতে চান? এটি আর ফিরিয়ে আনা যাবে না।')) return;
-    try {
-      const res = await fetch('/api/admin/payment-requests', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'deleteAllRequests'
-        })
-      });
-      if (res.ok) {
-        toast.success('সমস্ত পেমেন্ট ট্রানজেকশন সফলভাবে মুছে ফেলা হয়েছে।');
-        fetchRequests();
-      } else {
-        const data = await res.json();
-        throw new Error(data.error || 'মুছে ফেলতে ব্যর্থ হয়েছে');
-      }
-    } catch (err: any) {
-      toast.error(err.message);
-    }
   };
 
   const openDetails = (req: PaymentRequest) => {
@@ -193,120 +112,171 @@ export function TransactionsTab() {
     setAdminNote(req.admin_note || '');
   };
 
-  const getStatusBadge = (status: PaymentRequest['status']) => {
-    const styles = {
-      Pending: 'bg-amber-500/15 text-amber-500 border-amber-500/30 font-bold',
-      'Under Review': 'bg-blue-500/10 text-blue-500 border-blue-500/20',
-      Approved: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
-      Rejected: 'bg-red-500/10 text-red-500 border-red-500/20',
-      Cancelled: 'bg-zinc-500/10 text-zinc-500 border-zinc-500/20',
-    };
+  const handleAction = async (requestId: string, action: 'approve' | 'reject' | 'review') => {
+    setProcessingAction(action);
+    try {
+      const statusMap = {
+        approve: 'Approved',
+        reject: 'Rejected',
+        review: 'Under Review'
+      };
 
-    return (
-      <span className={cn(
-        "inline-flex items-center gap-1.5 px-2.5 py-0.5 text-xs font-semibold border rounded-full shrink-0",
-        styles[status] || styles.Pending
-      )}>
-        {status === 'Pending' && (
-          <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-ping shrink-0" />
-        )}
-        {status}
-      </span>
-    );
+      const res = await fetch('/api/admin/payment-requests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          paymentRequestId: requestId,
+          status: statusMap[action],
+          adminNote: adminNote.trim() || null
+        })
+      });
+
+      if (res.ok) {
+        toast.success(`পেমেন্ট রিকোয়েস্ট সফলভাবে ${action === 'approve' ? 'অনুমোদন' : action === 'reject' ? 'প্রত্যাখ্যান' : 'রিভিউ-তে রাখা'} হয়েছে!`);
+        setSelectedRequest(null);
+        fetchRequests();
+      } else {
+        const err = await res.json();
+        throw new Error(err.error || 'অ্যাকশন সম্পন্ন করা যায়নি');
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'অপারেশন সম্পন্ন করতে ত্রুটি হয়েছে');
+    } finally {
+      setProcessingAction(null);
+    }
+  };
+
+  const handleDeleteRequest = async (requestId: string) => {
+    if (!confirm('আপনি কি নিশ্চিত যে আপনি এই পেমেন্ট রিকোয়েস্টটি ডিলিট করতে চান?')) return;
+    try {
+      const res = await fetch(`/api/admin/payment-requests?id=${requestId}`, {
+        method: 'DELETE'
+      });
+      if (res.ok) {
+        toast.success('পেমেন্ট রিকোয়েস্ট সফলভাবে মুছে ফেলা হয়েছে');
+        fetchRequests();
+      } else {
+        const err = await res.json();
+        throw new Error(err.error || 'ডিলিট করা যায়নি');
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'ডিলিট করতে সমস্যা হয়েছে');
+    }
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'Approved':
+        return (
+          <span className="inline-flex items-center rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 text-xs font-bold text-emerald-500">
+            <CheckCircle2 className="mr-1 h-3 w-3" /> Approved
+          </span>
+        );
+      case 'Rejected':
+        return (
+          <span className="inline-flex items-center rounded-full bg-red-500/10 border border-red-500/20 px-2 py-0.5 text-xs font-bold text-red-500">
+            <XCircle className="mr-1 h-3 w-3" /> Rejected
+          </span>
+        );
+      case 'Under Review':
+        return (
+          <span className="inline-flex items-center rounded-full bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 text-xs font-bold text-blue-500">
+            <AlertCircle className="mr-1 h-3 w-3" /> Under Review
+          </span>
+        );
+      default:
+        return (
+          <span className="inline-flex items-center rounded-full bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 text-xs font-bold text-amber-500">
+            <Clock className="mr-1 h-3 w-3" /> Pending
+          </span>
+        );
+    }
   };
 
   return (
     <div className="space-y-6">
-      {/* Search & Filter Form */}
-      <form onSubmit={handleSearchSubmit} className="grid gap-4 md:grid-cols-4 items-end bg-zinc-950/20 p-4 border border-zinc-900 rounded-2xl">
-        <div className="md:col-span-2 space-y-1.5">
-          <Label htmlFor="search">খুঁজুন (Search)</Label>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              id="search"
-              placeholder="নাম, ইমেইল, Transaction ID, Sender Number..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              className="pl-9 bg-zinc-900 border-zinc-800"
-            />
-          </div>
-        </div>
+      {/* Search and filter header */}
+      <Card className="border-border bg-card/30">
+        <CardContent className="p-4 md:p-5">
+          <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-3 items-end">
+            <div className="flex-1 w-full space-y-1">
+              <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">অনুসন্ধান করুন (Search Query)</Label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder="ইউজার ইমেইল, নাম বা ট্রানজেকশন আইডি..."
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  className="pl-9 h-10 bg-card border-input"
+                />
+              </div>
+            </div>
 
-        <div className="space-y-1.5">
-          <Label>স্ট্যাটাস ফিল্টার</Label>
-          <Select value={statusFilter} onValueChange={(val) => setStatusFilter(val || 'All')}>
-            <SelectTrigger className="bg-zinc-900 border-zinc-800">
-              <SelectValue placeholder="সব স্ট্যাটাস" />
-            </SelectTrigger>
-            <SelectContent className="bg-zinc-900 border-zinc-800">
-              <SelectItem value="All">All Status</SelectItem>
-              <SelectItem value="Pending">Pending</SelectItem>
-              <SelectItem value="Under Review">Under Review</SelectItem>
-              <SelectItem value="Approved">Approved</SelectItem>
-              <SelectItem value="Rejected">Rejected</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+            <div className="w-full md:w-48 space-y-1">
+              <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">স্ট্যাটাস (Status)</Label>
+              <Select value={statusFilter} onValueChange={(val) => setStatusFilter(val || 'All')}>
+                <SelectTrigger className="h-10 text-xs font-semibold">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="All">সব রিকোয়েস্ট (All)</SelectItem>
+                  <SelectItem value="Pending">পেন্ডিং (Pending)</SelectItem>
+                  <SelectItem value="Under Review">রিভিউ হচ্ছে (Under Review)</SelectItem>
+                  <SelectItem value="Approved">অনুমোদিত (Approved)</SelectItem>
+                  <SelectItem value="Rejected">প্রত্যাখ্যাত (Rejected)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-        <div className="space-y-1.5 flex gap-2">
-          <div className="flex-1 space-y-1.5">
-            <Label>পেমেন্ট মেথড</Label>
-            <Select value={methodFilter} onValueChange={(val) => setMethodFilter(val || 'All')}>
-              <SelectTrigger className="bg-zinc-900 border-zinc-800">
-                <SelectValue placeholder="সব মেথড" />
-              </SelectTrigger>
-              <SelectContent className="bg-zinc-900 border-zinc-800">
-                <SelectItem value="All">All Methods</SelectItem>
-                <SelectItem value="bKash">bKash</SelectItem>
-                <SelectItem value="Nagad">Nagad</SelectItem>
-                <SelectItem value="Rocket">Rocket</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="flex gap-2">
-            <Button type="submit" className="flex-1 bg-primary hover:bg-primary/95 text-white">
+            <div className="w-full md:w-44 space-y-1">
+              <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">পেমেন্ট মেথড</Label>
+              <Select value={methodFilter} onValueChange={(val) => setMethodFilter(val || 'All')}>
+                <SelectTrigger className="h-10 text-xs font-semibold">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="All">সব মেথড (All)</SelectItem>
+                  <SelectItem value="bKash">bKash</SelectItem>
+                  <SelectItem value="Nagad">Nagad</SelectItem>
+                  <SelectItem value="Rocket">Rocket</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <Button type="submit" className="h-10 px-6 font-bold w-full md:w-auto bg-primary text-primary-foreground hover:bg-primary/90">
               খুঁজুন
             </Button>
-            {requests.length > 0 && (
-              <Button 
-                type="button" 
-                onClick={handleDeleteAllRequests} 
-                variant="destructive"
-                className="shrink-0 font-bold bg-red-600 hover:bg-red-500 text-white gap-1.5"
-              >
-                <Trash2 className="h-4 w-4" /> All Delete
-              </Button>
-            )}
-          </div>
-        </div>
-      </form>
+          </form>
+        </CardContent>
+      </Card>
 
-      {/* Requests List */}
-      {loading ? (
-        <div className="flex items-center justify-center py-20">
+      {/* Requests table */}
+      {loading && requests.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 text-muted-foreground gap-2">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-sm font-semibold">পেমেন্ট রিকোয়েস্ট লোড হচ্ছে...</p>
         </div>
       ) : requests.length === 0 ? (
-        <Card className="border-zinc-800 bg-zinc-950/10">
-          <CardContent className="flex flex-col items-center gap-3 py-16 text-center">
-            <div className="h-12 w-12 rounded-xl bg-zinc-900 flex items-center justify-center border border-zinc-800">
+        <Card className="border-border bg-card/20">
+          <CardContent className="py-16 text-center">
+            <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mx-auto mb-3">
               <DollarSign className="h-6 w-6 text-muted-foreground" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-foreground">কোনো ট্রানজেকশন রিকোয়েস্ট পাওয়া যায়নি</h3>
-              <p className="text-xs text-muted-foreground mt-1 max-w-sm">
-                পেমেন্ট রিকোয়েস্ট লিস্ট খালি।
+              <h3 className="text-lg font-bold text-foreground">কোনো পেমেন্ট রিকোয়েস্ট নেই</h3>
+              <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto">
+                এই ফিল্টারে কোনো ম্যানুয়াল পেমেন্ট রিকোয়েস্ট জমা পড়েনি।
               </p>
             </div>
           </CardContent>
         </Card>
       ) : (
-        <div className="border border-zinc-200 dark:border-zinc-850 bg-zinc-50/50 dark:bg-zinc-950/20 rounded-2xl overflow-hidden">
+        <div className="border border-border bg-card/10 rounded-2xl overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-sm">
               <thead>
-                <tr className="border-b border-zinc-200 dark:border-zinc-850 bg-zinc-100/60 dark:bg-zinc-950/60 text-xs text-muted-foreground uppercase font-semibold">
+                <tr className="border-b border-border bg-muted/60 text-xs text-muted-foreground uppercase font-semibold">
                   <th className="px-5 py-4">Request ID / Date</th>
                   <th className="px-5 py-4">User</th>
                   <th className="px-5 py-4">Package</th>
@@ -317,12 +287,12 @@ export function TransactionsTab() {
                   <th className="px-5 py-4 text-center">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zinc-200 dark:divide-zinc-850">
+              <tbody className="divide-y divide-border">
                 {requests.map((req) => (
                   <tr 
                     key={req.id} 
                     className={cn(
-                      "hover:bg-zinc-100/40 dark:hover:bg-zinc-900/20 transition-all border-l-2",
+                      "hover:bg-muted/40 transition-all border-l-2",
                       req.status === 'Pending' 
                         ? "bg-amber-500/[0.03] border-l-amber-500/80 shadow-[inset_1px_0_0_0_rgba(245,158,11,0.15)] animate-pulse-slow" 
                         : "border-l-transparent"
@@ -363,7 +333,7 @@ export function TransactionsTab() {
                     <td className="px-5 py-4">{getStatusBadge(req.status)}</td>
                     <td className="px-5 py-4 text-center">
                       <div className="flex items-center justify-center gap-1.5">
-                        <Button onClick={() => openDetails(req)} size="sm" variant="outline" className="text-xs bg-zinc-100 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-300 hover:text-foreground">
+                        <Button onClick={() => openDetails(req)} size="sm" variant="outline" className="text-xs bg-background text-foreground hover:bg-muted">
                           Review
                         </Button>
                         <Button 
@@ -388,10 +358,10 @@ export function TransactionsTab() {
       {/* Review Drawer / Modal */}
       {selectedRequest && (
         <div className="fixed inset-0 z-50 flex items-center justify-end bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="w-full max-w-lg h-full bg-card border-l border-zinc-200 dark:border-zinc-850 p-6 flex flex-col justify-between shadow-2xl relative animate-in slide-in-from-right duration-300">
+          <div className="w-full max-w-lg h-full bg-card border-l border-border p-6 flex flex-col justify-between shadow-2xl relative animate-in slide-in-from-right duration-300">
             {/* Header */}
             <div>
-              <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-850 pb-4">
+              <div className="flex items-center justify-between border-b border-border pb-4">
                 <div>
                   <h3 className="text-lg font-black text-foreground">Review Transaction</h3>
                   <p className="text-xs text-muted-foreground font-mono mt-0.5">{selectedRequest.request_id}</p>
@@ -408,7 +378,7 @@ export function TransactionsTab() {
                   <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
                     <User className="h-3.5 w-3.5" /> User Information
                   </h4>
-                  <div className="bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-900 p-4 rounded-xl space-y-2 text-sm">
+                  <div className="bg-muted/20 border border-border p-4 rounded-xl space-y-2 text-sm">
                     <div className="flex justify-between"><span className="text-muted-foreground">Name:</span> <span className="font-semibold">{selectedRequest.user_name}</span></div>
                     <div className="flex justify-between"><span className="text-muted-foreground">Email:</span> <span>{selectedRequest.user_email}</span></div>
                     <div className="flex justify-between"><span className="text-muted-foreground">User ID:</span> <span className="font-mono text-xs text-zinc-500">{selectedRequest.user_id}</span></div>
@@ -420,14 +390,14 @@ export function TransactionsTab() {
                   <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
                     <Smartphone className="h-3.5 w-3.5" /> Payment Details
                   </h4>
-                  <div className="bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-900 p-4 rounded-xl space-y-2 text-sm">
+                  <div className="bg-muted/20 border border-border p-4 rounded-xl space-y-2 text-sm">
                     <div className="flex justify-between"><span className="text-muted-foreground">Payment Method:</span> <span className="font-bold uppercase text-primary">{selectedRequest.payment_method}</span></div>
                     <div className="flex justify-between"><span className="text-muted-foreground">Sender Number:</span> <span className="font-semibold">{selectedRequest.sender_number}</span></div>
                     <div className="flex justify-between"><span className="text-muted-foreground">Transaction ID:</span> <span className="font-mono font-black text-primary text-base">{selectedRequest.transaction_id}</span></div>
                     <div className="flex justify-between"><span className="text-muted-foreground">Paid Amount:</span> <span className="font-bold text-foreground">৳{selectedRequest.paid_amount} BDT</span></div>
                     <div className="flex justify-between"><span className="text-muted-foreground">Expected Amount:</span> <span className="text-zinc-400">৳{selectedRequest.expected_amount} BDT</span></div>
                     {selectedRequest.payment_note && (
-                      <div className="pt-2 border-t border-zinc-200 dark:border-zinc-850 mt-2">
+                      <div className="pt-2 border-t border-border mt-2">
                         <span className="text-xs text-muted-foreground block mb-1">User Payment Note:</span>
                         <p className="text-xs text-zinc-550 dark:text-zinc-300 italic">"{selectedRequest.payment_note}"</p>
                       </div>
@@ -440,7 +410,7 @@ export function TransactionsTab() {
                   <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
                     <Tag className="h-3.5 w-3.5" /> Selected Package
                   </h4>
-                  <div className="bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-900 p-4 rounded-xl space-y-2 text-sm">
+                  <div className="bg-muted/20 border border-border p-4 rounded-xl space-y-2 text-sm">
                     <div className="flex justify-between"><span className="text-muted-foreground">Package Name:</span> <span className="font-semibold text-foreground">{selectedRequest.package_name}</span></div>
                     <div className="flex justify-between"><span className="text-muted-foreground">Duration:</span> <span>{selectedRequest.package_duration}</span></div>
                     <div className="flex justify-between"><span className="text-muted-foreground">Package ID:</span> <span className="font-mono text-xs text-zinc-500">{selectedRequest.package_id}</span></div>
@@ -457,14 +427,14 @@ export function TransactionsTab() {
                     placeholder="Add feedback, reject reasons, or verification details..."
                     value={adminNote}
                     onChange={(e) => setAdminNote(e.target.value)}
-                    className="bg-zinc-100 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-sm focus:border-primary min-h-[80px]"
+                    className="bg-card border-input text-foreground text-sm focus:border-primary min-h-[80px]"
                   />
                 </div>
               </div>
             </div>
 
             {/* Actions footer */}
-            <div className="border-t border-zinc-200 dark:border-zinc-850 pt-4 flex flex-col gap-2">
+            <div className="border-t border-border pt-4 flex flex-col gap-2">
               <div className="flex gap-2">
                 <Button
                   onClick={() => handleAction(selectedRequest.id, 'approve')}
@@ -485,7 +455,7 @@ export function TransactionsTab() {
                 onClick={() => handleAction(selectedRequest.id, 'review')}
                 disabled={processingAction !== null}
                 variant="outline"
-                className="w-full bg-zinc-100 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-300"
+                className="w-full bg-background border-input text-foreground"
               >
                 {processingAction === 'review' ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Mark Under Review'}
               </Button>
