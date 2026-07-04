@@ -451,7 +451,7 @@ export async function sendMemberRemovedEmail(to: string, data: { userName: strin
     heading("Removed from team") +
     subtext(`Hi ${data.userName}, you have been removed from <strong style="color:#fff;font-weight:600;">${data.teamName}</strong> by <strong style="color:#fff;font-weight:600;">${data.removedBy}</strong>.`) +
     divider() +
-    `<p style="color:#888;font-size:13px;line-height:1.7;margin:0 0 28px;text-align:center;">You can still sign in to your account. A personal workspace has been created for you.`) +
+    `<p style="color:#888;font-size:13px;line-height:1.7;margin:0 0 28px;text-align:center;">You can still sign in to your account. A personal workspace has been created for you.</p>` +
     btn("Go to Dashboard", `${SITE_URL}/dashboard`, "#ef4444"),
     { preheader: `You have been removed from ${data.teamName}.` }
   );
