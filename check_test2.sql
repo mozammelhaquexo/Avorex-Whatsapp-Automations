@@ -1,0 +1,1 @@
+SELECT a.id, a.plan, a.package_id, a.license_key, a.license_expires_at, p.email FROM accounts a JOIN profiles p ON p.account_id = a.id WHERE p.email ILIKE '%test%2%';
