@@ -104,7 +104,7 @@ function LoginPageInner() {
           
           <CardHeader className="items-center text-center pb-2 pt-8">
             {/* Logo / Badge Ring */}
-            <div className="relative mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-zinc-900/80 border border-zinc-850 shadow-[inset_0_1px_rgba(255,255,255,0.05)] overflow-hidden hover:scale-105 transition-transform duration-300">
+            <div className="relative mb-4 mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-zinc-900/80 border border-zinc-850 shadow-[inset_0_1px_rgba(255,255,255,0.05)] overflow-hidden hover:scale-105 transition-transform duration-300">
               {inviteToken ? (
                 <UsersRound className="h-6.5 w-6.5 text-primary animate-pulse" />
               ) : (

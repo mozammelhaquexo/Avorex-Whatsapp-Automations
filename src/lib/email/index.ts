@@ -405,23 +405,24 @@ export async function sendPaymentConfirmedEmail(
   });
 
   const html = wrap("Payment Invoice",
-    sectionIcon("🧾", "#22c55e") +
-    badge("INVOICE & RECEIPT", "#22c55e") +
-    heading("Thank you for your purchase!") +
-    subtext(`Hi ${data.userName}, your payment has been successfully confirmed. A receipt / invoice has been generated for your records.`) +
+    sectionIcon("✨", "#e5c158") +
+    badge("OFFICIAL PAYMENT INVOICE", "#e5c158") +
+    heading("Subscription Confirmed") +
+    subtext(`Dear ${data.userName}, we are pleased to confirm that your payment has been verified. Welcome to the premium tier of ${brand}.`) +
     divider() +
     
     // Invoice details header
-    `<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px;color:#aaa;font-size:12px;line-height:1.6;">
+    `<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;color:#888;font-size:12px;line-height:1.6;font-family:'SF Pro Display',sans-serif;">
       <tr>
         <td>
-          <strong style="color:#fff;">Invoiced To:</strong><br/>
-          ${data.userName}<br/>
-          ${to}
+          <span style="color:#555;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;">INVOICED TO</span><br/>
+          <strong style="color:#fff;font-size:13px;">${data.userName}</strong><br/>
+          <span style="color:#666;">${to}</span>
         </td>
         <td style="text-align:right;vertical-align:top;">
-          <strong style="color:#fff;">Invoice Date:</strong> ${invoiceDate}<br/>
-          <strong style="color:#fff;">Status:</strong> <span style="color:#22c55e;font-weight:700;">PAID</span>
+          <span style="color:#555;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;">INVOICE DATE</span><br/>
+          <strong style="color:#fff;font-size:13px;">${invoiceDate}</strong><br/>
+          <span style="display:inline-block;padding:2px 8px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);color:#22c55e;font-size:9px;font-weight:800;border-radius:100px;letter-spacing:1px;margin-top:4px;">PAID</span>
         </td>
       </tr>
     </table>` +
@@ -430,21 +431,21 @@ export async function sendPaymentConfirmedEmail(
     `<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;border-collapse:collapse;font-family:'SF Pro Display',sans-serif;">
       <thead>
         <tr style="border-bottom:2px solid rgba(255,255,255,0.06);">
-          <th align="left" style="color:#888;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:8px 0;">Item / Description</th>
-          <th align="right" style="color:#888;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:8px 0;">Total</th>
+          <th align="left" style="color:#555;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;padding:8px 0;">PRODUCT & SERVICES</th>
+          <th align="right" style="color:#555;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;padding:8px 0;">NET TOTAL</th>
         </tr>
       </thead>
       <tbody>
         <tr style="border-bottom:1px solid rgba(255,255,255,0.04);">
-          <td style="padding:16px 0;vertical-align:top;">
-            <p style="color:#fff;font-size:14px;font-weight:600;margin:0 0 4px 0;">${data.plan} Plan</p>
-            <p style="color:#555;font-size:12px;margin:0;">WhatsApp Automation & CRM access</p>
+          <td style="padding:18px 0;vertical-align:top;">
+            <p style="color:#fff;font-size:14px;font-weight:700;margin:0 0 4px 0;letter-spacing:-0.2px;">${data.plan} Access License</p>
+            <p style="color:#666;font-size:12px;margin:0;">Complete access to WhatsApp Business API Automations, CRM Inbox & Broadcast tools.</p>
           </td>
-          <td align="right" style="color:#fff;font-size:14px;font-weight:700;padding:16px 0;">${data.amount}</td>
+          <td align="right" style="color:#fff;font-size:14px;font-weight:700;padding:18px 0;font-family:'SF Mono',monospace;">${data.amount}</td>
         </tr>
         <tr>
-          <td style="padding:16px 0 0 0;color:#888;font-size:13px;font-weight:600;text-transform:uppercase;">Grand Total</td>
-          <td align="right" style="padding:16px 0 0 0;color:#22c55e;font-size:18px;font-weight:800;">${data.amount}</td>
+          <td style="padding:20px 0 0 0;color:#888;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Amount Paid</td>
+          <td align="right" style="padding:20px 0 0 0;color:#e5c158;font-size:22px;font-weight:800;font-family:'SF Mono',monospace;text-shadow:0 0 12px rgba(229,193,88,0.25);">${data.amount}</td>
         </tr>
       </tbody>
     </table>` +
@@ -452,24 +453,24 @@ export async function sendPaymentConfirmedEmail(
     divider() +
 
     // Transaction Details Card
-    `<p style="color:#aaa;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin:0 0 12px 0;">Transaction Details</p>` +
+    `<p style="color:#555;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;margin:0 0 12px 0;font-family:'SF Pro Display',sans-serif;">TRANSACTION PARAMETERS</p>` +
     infoCard(
       infoRow("Payment Method", data.method) +
       infoRow("Transaction ID", data.transactionId, { mono: true }) +
-      (data.expiresAt ? infoRow("Valid Until", new Date(data.expiresAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })) : "")
+      (data.expiresAt ? infoRow("Expiration Date", new Date(data.expiresAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })) : "")
     ) +
 
     // License Activation Card
-    `<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
-      <tr><td style="padding:20px;background:rgba(34,197,94,0.04);border:1px solid rgba(34,197,94,0.12);border-radius:16px;text-align:center;">
-        <p style="color:#555;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin:0 0 8px 0;font-family:'SF Pro Display',sans-serif;">Your License Activation Key</p>
-        <p style="color:#22c55e;font-size:16px;font-family:'SF Mono',monospace;font-weight:700;letter-spacing:2px;margin:0 0 6px 0;">${data.licenseKey}</p>
-        <p style="color:#666;font-size:11px;margin:0;">Copy and apply this key in your settings panel to activate your license.</p>
+    `<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;font-family:'SF Pro Display',sans-serif;">
+      <tr><td style="padding:24px 20px;background:linear-gradient(135deg, rgba(229,193,88,0.06) 0%, rgba(229,193,88,0.01) 100%);border:1px solid rgba(229,193,88,0.15);border-radius:18px;text-align:center;">
+        <p style="color:#e5c158;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin:0 0 8px 0;">YOUR LICENSE KEY</p>
+        <p style="color:#ffffff;font-size:17px;font-family:'SF Mono',monospace;font-weight:700;letter-spacing:3px;margin:0 0 8px 0;text-shadow:0 0 10px rgba(255,255,255,0.1);">${data.licenseKey}</p>
+        <p style="color:#666;font-size:11px;line-height:1.5;margin:0;">Apply this token in your settings panel to unlock all features immediately.</p>
       </td></tr>
     </table>` +
 
-    btn("Open Dashboard", `${SITE_URL}/dashboard`, "#22c55e"),
-    { preheader: `Invoice for ${data.plan} Plan. Amount ${data.amount} is fully paid.`, brandName: brand, logoUrl: logo }
+    btn("Go to Dashboard", `${SITE_URL}/dashboard`, "#e5c158"),
+    { preheader: `Invoice confirmed: ${data.plan} License activated.`, brandName: brand, logoUrl: logo }
   );
 
   return sendMail(to, `Payment Invoice — ${brand} License`, html);
