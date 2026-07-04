@@ -188,8 +188,9 @@ export function PackagesManagementTab() {
       toast.success(isEdit ? 'প্যাকেজ আপডেট করা হয়েছে!' : 'প্যাকেজ তৈরি করা হয়েছে!');
       setShowModal(false);
       fetchPackages();
-    } catch (err: any) {
-      toast.error(err.message || 'প্যাকেজ সেভ করার সময় ত্রুটি হয়েছে');
+    } catch (err: unknown) {
+      const error = err as Error;
+      toast.error(error.message || 'প্যাকেজ সেভ করার সময় ত্রুটি হয়েছে');
     } finally {
       setSaving(false);
     }
@@ -213,8 +214,9 @@ export function PackagesManagementTab() {
       }
       toast.success('প্যাকেজ সফলভাবে ডিলিট হয়েছে');
       fetchPackages();
-    } catch (err: any) {
-      toast.error(err.message || 'ডিলিট করার সময় ত্রুটি হয়েছে');
+    } catch (err: unknown) {
+      const error = err as Error;
+      toast.error(error.message || 'ডিলিট করার সময় ত্রুটি হয়েছে');
     } finally {
       setDeletingId(null);
     }

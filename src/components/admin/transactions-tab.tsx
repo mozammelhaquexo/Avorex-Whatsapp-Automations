@@ -139,8 +139,9 @@ export function TransactionsTab() {
         const err = await res.json();
         throw new Error(err.error || 'অ্যাকশন সম্পন্ন করা যায়নি');
       }
-    } catch (err: any) {
-      toast.error(err.message || 'অপারেশন সম্পন্ন করতে ত্রুটি হয়েছে');
+    } catch (err: unknown) {
+      const error = err as Error;
+      toast.error(error.message || 'অপারেশন সম্পন্ন করতে ত্রুটি হয়েছে');
     } finally {
       setProcessingAction(null);
     }
@@ -159,8 +160,9 @@ export function TransactionsTab() {
         const err = await res.json();
         throw new Error(err.error || 'ডিলিট করা যায়নি');
       }
-    } catch (err: any) {
-      toast.error(err.message || 'ডিলিট করতে সমস্যা হয়েছে');
+    } catch (err: unknown) {
+      const error = err as Error;
+      toast.error(error.message || 'ডিলিট করতে সমস্যা হয়েছে');
     }
   };
 
@@ -399,7 +401,7 @@ export function TransactionsTab() {
                     {selectedRequest.payment_note && (
                       <div className="pt-2 border-t border-border mt-2">
                         <span className="text-xs text-muted-foreground block mb-1">User Payment Note:</span>
-                        <p className="text-xs text-zinc-550 dark:text-zinc-300 italic">"{selectedRequest.payment_note}"</p>
+                        <p className="text-xs text-zinc-550 dark:text-zinc-300 italic">&quot;{selectedRequest.payment_note}&quot;</p>
                       </div>
                     )}
                   </div>

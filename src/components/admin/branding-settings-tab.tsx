@@ -113,8 +113,9 @@ export function BrandingSettingsTab() {
         const err = await res.json();
         throw new Error(err.error || 'সেটিংস আপডেট করা যায়নি');
       }
-    } catch (err: any) {
-      toast.error(err.message || 'সেটিংস সেভ করার সময় ত্রুটি হয়েছে');
+    } catch (err: unknown) {
+      const error = err as Error;
+      toast.error(error.message || 'সেটিংস সেভ করার সময় ত্রুটি হয়েছে');
     } finally {
       setSaving(false);
     }
