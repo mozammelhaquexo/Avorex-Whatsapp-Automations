@@ -125,8 +125,8 @@ export function TransactionsTab() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          paymentRequestId: requestId,
-          status: statusMap[action],
+          requestId,
+          action,
           adminNote: adminNote.trim() || null
         })
       });
