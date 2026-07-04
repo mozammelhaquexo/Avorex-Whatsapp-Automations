@@ -23,8 +23,8 @@ export async function GET(request: Request) {
   const results = { expired: 0, warnings: 0, errors: 0 };
 
   try {
-    // 1. Find licenses expiring in 7, 3, or 1 day(s)
-    const warningDays = [7, 3, 1];
+    // 1. Find licenses expiring in 30 days or daily in the last 7 days
+    const warningDays = [30, 7, 6, 5, 4, 3, 2, 1];
     for (const days of warningDays) {
       const targetDate = new Date(now);
       targetDate.setDate(targetDate.getDate() + days);

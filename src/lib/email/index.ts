@@ -18,7 +18,21 @@ const SUPPORT_WHATSAPP = "01575813644";
 // PREMIUM TEMPLATE SYSTEM
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-function wrap(title: string, body: string, opts?: { preheader?: string }): string {
+function wrap(title: string, body: string, opts?: { preheader?: string; brandName?: string; logoUrl?: string }): string {
+  const brand = opts?.brandName || BRAND_NAME;
+  const logoHtml = opts?.logoUrl 
+    ? `<img src="${opts.logoUrl}" alt="${brand}" style="max-height:48px;max-width:200px;display:block;margin:0 auto;"/>`
+    : `<table cellpadding="0" cellspacing="0" style="margin:0 auto;">
+<tr>
+  <td style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#6366f1 0%,#8b5cf6 50%,#a855f7 100%);text-align:center;vertical-align:middle;">
+    <span style="color:#fff;font-weight:800;font-size:22px;line-height:48px;font-family:'SF Pro Display',sans-serif;">${brand.charAt(0).toUpperCase()}</span>
+  </td>
+  <td style="padding-left:14px;vertical-align:middle;">
+    <span style="color:#ffffff;font-weight:700;font-size:24px;letter-spacing:-0.8px;font-family:'SF Pro Display',sans-serif;">${brand}</span>
+  </td>
+</tr>
+</table>`;
+
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -45,16 +59,7 @@ function wrap(title: string, body: string, opts?: { preheader?: string }): strin
 
 <!-- Logo -->
 <tr><td style="padding-bottom:36px;text-align:center;">
-<table cellpadding="0" cellspacing="0" style="margin:0 auto;">
-<tr>
-  <td style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#6366f1 0%,#8b5cf6 50%,#a855f7 100%);text-align:center;vertical-align:middle;">
-    <span style="color:#fff;font-weight:800;font-size:22px;line-height:48px;font-family:'SF Pro Display',sans-serif;">A</span>
-  </td>
-  <td style="padding-left:14px;vertical-align:middle;">
-    <span style="color:#ffffff;font-weight:700;font-size:24px;letter-spacing:-0.8px;font-family:'SF Pro Display',sans-serif;">${BRAND_NAME}</span>
-  </td>
-</tr>
-</table>
+  ${logoHtml}
 </td></tr>
 
 <!-- Card with gradient border -->
@@ -322,10 +327,10 @@ export async function sendLicenseActivatedEmail(to: string, data: { userName: st
 // 8. LICENSE EXPIRY WARNING
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 export async function sendLicenseExpiryEmail(to: string, data: { userName: string; plan: string; expiresAt: string; daysLeft: number }): Promise<boolean> {
-  const color = data.daysLeft <= 1 ? "#ef4444" : data.daysLeft <= 3 ? "#f59e0b" : "#6366f1";
-  const label = data.daysLeft <= 1 ? "EXPIRES TOMORROW" : data.daysLeft <= 3 ? "EXPIRING SOON" : "LICENSE REMINDER";
+  const color = data.daysLeft <= 1 ? "#ef4444" : data.daysLeft <= 7 ? "#f59e0b" : "#6366f1";
+  const label = data.daysLeft <= 1 ? "EXPIRES TOMORROW" : data.daysLeft <= 7 ? "EXPIRING SOON" : "LICENSE REMINDER";
   const days = data.daysLeft <= 1 ? "1 day" : `${data.daysLeft} days`;
-  const icon = data.daysLeft <= 1 ? "🔴" : data.daysLeft <= 3 ? "🟡" : "🔵";
+  const icon = data.daysLeft <= 1 ? "🔴" : data.daysLeft <= 7 ? "🟡" : "🔵";
 
   const html = wrap("License Expiring Soon",
     sectionIcon(icon, color) +
@@ -372,29 +377,102 @@ export async function sendLicenseExpiredEmail(to: string, data: { userName: stri
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // 10. PAYMENT CONFIRMED
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-export async function sendPaymentConfirmedEmail(to: string, data: { userName: string; plan: string; amount: string; method: string; transactionId: string; licenseKey: string; expiresAt: string | null }): Promise<boolean> {
-  const html = wrap("Payment Confirmed",
-    sectionIcon("💳", "#22c55e") +
-    badge("PAYMENT CONFIRMED", "#22c55e") +
-    heading("Payment received!") +
-    subtext(`Hi ${data.userName}, your payment has been verified and your license is now active. Thank you for choosing ${BRAND_NAME}!`) +
+export async function sendPaymentConfirmedEmail(
+  to: string,
+  data: {
+    userName: string;
+    plan: string;
+    amount: string;
+    method: string;
+    transactionId: string;
+    licenseKey: string;
+    expiresAt: string | null;
+  },
+  branding?: {
+    brandName?: string;
+    brandLogoUrl?: string;
+    softwareName?: string;
+    currencySymbol?: string;
+  }
+): Promise<boolean> {
+  const brand = branding?.brandName || BRAND_NAME;
+  const logo = branding?.brandLogoUrl;
+
+  const invoiceDate = new Date().toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+
+  const html = wrap("Payment Invoice",
+    sectionIcon("🧾", "#22c55e") +
+    badge("INVOICE & RECEIPT", "#22c55e") +
+    heading("Thank you for your purchase!") +
+    subtext(`Hi ${data.userName}, your payment has been successfully confirmed. A receipt / invoice has been generated for your records.`) +
     divider() +
+    
+    // Invoice details header
+    `<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px;color:#aaa;font-size:12px;line-height:1.6;">
+      <tr>
+        <td>
+          <strong style="color:#fff;">Invoiced To:</strong><br/>
+          ${data.userName}<br/>
+          ${to}
+        </td>
+        <td style="text-align:right;vertical-align:top;">
+          <strong style="color:#fff;">Invoice Date:</strong> ${invoiceDate}<br/>
+          <strong style="color:#fff;">Status:</strong> <span style="color:#22c55e;font-weight:700;">PAID</span>
+        </td>
+      </tr>
+    </table>` +
+
+    // Itemized invoice table
+    `<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;border-collapse:collapse;font-family:'SF Pro Display',sans-serif;">
+      <thead>
+        <tr style="border-bottom:2px solid rgba(255,255,255,0.06);">
+          <th align="left" style="color:#888;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:8px 0;">Item / Description</th>
+          <th align="right" style="color:#888;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:8px 0;">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom:1px solid rgba(255,255,255,0.04);">
+          <td style="padding:16px 0;vertical-align:top;">
+            <p style="color:#fff;font-size:14px;font-weight:600;margin:0 0 4px 0;">${data.plan} Plan</p>
+            <p style="color:#555;font-size:12px;margin:0;">WhatsApp Automation & CRM access</p>
+          </td>
+          <td align="right" style="color:#fff;font-size:14px;font-weight:700;padding:16px 0;">${data.amount}</td>
+        </tr>
+        <tr>
+          <td style="padding:16px 0 0 0;color:#888;font-size:13px;font-weight:600;text-transform:uppercase;">Grand Total</td>
+          <td align="right" style="padding:16px 0 0 0;color:#22c55e;font-size:18px;font-weight:800;">${data.amount}</td>
+        </tr>
+      </tbody>
+    </table>` +
+    
+    divider() +
+
+    // Transaction Details Card
+    `<p style="color:#aaa;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin:0 0 12px 0;">Transaction Details</p>` +
     infoCard(
-      infoRow("Package", data.plan, { color: "#a855f7" }) +
-      infoRow("Amount", data.amount, { color: "#22c55e" }) +
-      infoRow("Method", data.method) +
+      infoRow("Payment Method", data.method) +
       infoRow("Transaction ID", data.transactionId, { mono: true }) +
       (data.expiresAt ? infoRow("Valid Until", new Date(data.expiresAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })) : "")
     ) +
+
+    // License Activation Card
     `<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
-<tr><td style="padding:18px 20px;background:rgba(34,197,94,0.04);border:1px solid rgba(34,197,94,0.12);border-radius:14px;text-align:center;">
-<p style="color:#555;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin:0 0 8px 0;font-family:'SF Pro Display',sans-serif;">Your License Key</p>
-<p style="color:#22c55e;font-size:15px;font-family:'SF Mono',monospace;font-weight:700;letter-spacing:2.5px;margin:0;">${data.licenseKey}</p>
-</td></tr></table>` +
+      <tr><td style="padding:20px;background:rgba(34,197,94,0.04);border:1px solid rgba(34,197,94,0.12);border-radius:16px;text-align:center;">
+        <p style="color:#555;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin:0 0 8px 0;font-family:'SF Pro Display',sans-serif;">Your License Activation Key</p>
+        <p style="color:#22c55e;font-size:16px;font-family:'SF Mono',monospace;font-weight:700;letter-spacing:2px;margin:0 0 6px 0;">${data.licenseKey}</p>
+        <p style="color:#666;font-size:11px;margin:0;">Copy and apply this key in your settings panel to activate your license.</p>
+      </td></tr>
+    </table>` +
+
     btn("Open Dashboard", `${SITE_URL}/dashboard`, "#22c55e"),
-    { preheader: `Payment of ${data.amount} confirmed. Your ${data.plan} license is active.` }
+    { preheader: `Invoice for ${data.plan} Plan. Amount ${data.amount} is fully paid.`, brandName: brand, logoUrl: logo }
   );
-  return sendMail(to, "Payment Confirmed — " + BRAND_NAME, html);
+
+  return sendMail(to, `Payment Invoice — ${brand} License`, html);
 }
 
 

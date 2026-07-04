@@ -174,7 +174,7 @@ export async function POST(request: Request) {
       // A. Load dynamic branding settings
       const { data: branding } = await db
         .from("branding_settings")
-        .select("brand_name")
+        .select("brand_name, brand_logo_url, software_name, currency_symbol")
         .eq("is_default", true)
         .maybeSingle();
 
@@ -288,11 +288,16 @@ export async function POST(request: Request) {
           const sent = await sendPaymentConfirmedEmail(userEmail, {
             userName: profile.full_name || "User",
             plan: pkg.name,
-            amount: `৳${trx.paid_amount} BDT`,
+            amount: `${branding?.currency_symbol || "৳"}${trx.paid_amount}`,
             method: trx.payment_method,
             transactionId: trx.transaction_id,
             licenseKey: keyStr,
             expiresAt: expiresAt ? expiresAt.toISOString() : null,
+          }, {
+            brandName: branding?.brand_name,
+            brandLogoUrl: branding?.brand_logo_url,
+            softwareName: branding?.software_name,
+            currencySymbol: branding?.currency_symbol,
           });
           await logEmail({
             accountId: profile.account_id,
