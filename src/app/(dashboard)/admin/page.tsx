@@ -87,6 +87,7 @@ interface LicenseKey {
   notes: string | null;
   duration: string | null;
   start_date: string | null;
+  user_email: string | null;
 }
 
 interface Presence {
@@ -984,8 +985,8 @@ export default function AdminPanelPage() {
                           <td className="p-4 text-xs text-muted-foreground">
                             {keyObj.expiry_date ? new Date(keyObj.expiry_date).toLocaleDateString() : 'No expiry'}
                           </td>
-                          <td className="p-4 font-mono text-xs text-muted-foreground truncate max-w-[120px]" title={keyObj.workspace_id || 'Not redeemed'}>
-                            {keyObj.workspace_id ? keyObj.workspace_id.substring(0, 8) + '...' : '-'}
+                          <td className="p-4 text-xs text-muted-foreground truncate max-w-[180px]" title={keyObj.user_email || keyObj.workspace_id || 'Not redeemed'}>
+                            {keyObj.user_email ? keyObj.user_email : (keyObj.workspace_id ? keyObj.workspace_id.substring(0, 8) + '...' : '-')}
                           </td>
                           <td className="p-4 text-muted-foreground text-xs">
                             {new Date(keyObj.created_at).toLocaleDateString()}

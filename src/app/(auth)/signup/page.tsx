@@ -213,7 +213,15 @@ function SignupPageInner() {
   }
 
   // ─── OTP Input Screen ─────────────────────────────────────────
-  if (step === "otp" || step === "sending") {
+  if (step === "otp" || step === "sending" || step === "creating") {
+    const isLoader = step === "sending" || step === "creating";
+    const statusTitle = step === "sending" ? "Sending Code..." : step === "creating" ? "Creating Account..." : "Enter Verification";
+    const descriptionText = step === "sending"
+      ? "We are sending a verification code to your email..."
+      : step === "creating"
+      ? "Setting up your secure workspace. Please wait..."
+      : <>We have sent a 6-digit code to <span className="text-white font-semibold">{email}</span>. Please enter the code below.</>;
+
     return (
       <div className="flex min-h-screen items-center justify-center bg-background px-4 relative overflow-hidden">
         {renderBackground()}
@@ -222,26 +230,21 @@ function SignupPageInner() {
             <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/[0.015] to-white/0 pointer-events-none" />
             <CardHeader className="items-center text-center pb-2 pt-8">
               <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-zinc-900/80 border border-zinc-850 shadow-[inset_0_1px_rgba(255,255,255,0.05)] overflow-hidden">
-                {step === "sending" ? (
+                {isLoader ? (
                   <Loader2 className="h-7 w-7 text-primary animate-spin" />
                 ) : (
                   <MessageSquare className="h-7 w-7 text-primary animate-pulse" />
                 )}
               </div>
               <CardTitle className="text-2xl font-black text-white tracking-tight">
-                {step === "sending" ? "Sending Code..." : "Enter Verification"}
+                {statusTitle}
               </CardTitle>
               <CardDescription className="text-zinc-400 text-xs font-medium px-4">
-                {step === "sending"
-                  ? "We are sending a verification code to your email..."
-                  : (
-                    <>We have sent a 6-digit code to <span className="text-white font-semibold">{email}</span>. Please enter the code below.</>
-                  )
-                }
+                {descriptionText}
               </CardDescription>
             </CardHeader>
             <CardContent className="px-6 md:px-8 pb-8 pt-4">
-              {step === "sending" ? (
+              {isLoader ? (
                 <div className="flex justify-center py-8">
                   <Loader2 className="h-8 w-8 text-primary animate-spin" />
                 </div>
