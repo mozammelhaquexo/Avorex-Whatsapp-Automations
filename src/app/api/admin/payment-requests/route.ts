@@ -281,9 +281,8 @@ export async function POST(request: Request) {
       try {
         const { sendPaymentConfirmedEmail } = await import("@/lib/email");
         const { logEmail } = await import("@/lib/email/log");
-        // Get user email from auth
-        const { data: authUser } = await db.auth.admin.getUserById(trx.user_id);
-        const userEmail = authUser?.user?.email;
+        // Get user email directly from transaction details
+        const userEmail = trx.user_email;
         if (userEmail) {
           const sent = await sendPaymentConfirmedEmail(userEmail, {
             userName: profile.full_name || "User",
