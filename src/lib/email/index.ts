@@ -651,6 +651,40 @@ ${code.split("").map(d => `<td style="width:52px;height:64px;background:rgba(99,
 // BASE SEND
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 async function sendMail(to: string, subject: string, html: string): Promise<boolean> {
+  const resendApiKey = process.env.RESEND_API_KEY;
+  const fromEmail = process.env.FROM_EMAIL || "noreply@avorex.com";
+
+  if (resendApiKey) {
+    try {
+      console.log(`[Email] Attempting to send "${subject}" to ${to} via Resend...`);
+      const response = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${resendApiKey}`,
+        },
+        body: JSON.stringify({
+          from: `"${BRAND_NAME}" <${fromEmail}>`,
+          to: [to],
+          subject,
+          html,
+        }),
+      });
+
+      if (response.ok) {
+        console.log(`[Email] Successfully sent "${subject}" to ${to} via Resend.`);
+        return true;
+      }
+
+      const errText = await response.text();
+      console.error(`[Email] Resend API returned error status: ${response.status}. Details: ${errText}`);
+    } catch (err) {
+      console.error(`[Email] Resend API exception while sending "${subject}" to ${to}:`, err);
+    }
+    
+    console.log(`[Email] Falling back to Gmail SMTP to send "${subject}" to ${to}...`);
+  }
+
   try {
     await transporter.sendMail({
       from: `"${BRAND_NAME}" <${FROM_EMAIL}>`,
@@ -660,7 +694,7 @@ async function sendMail(to: string, subject: string, html: string): Promise<bool
     });
     return true;
   } catch (err) {
-    console.error(`[Email] Failed to send "${subject}" to ${to}:`, err);
+    console.error(`[Email] Gmail SMTP fallback failed to send "${subject}" to ${to}:`, err);
     return false;
   }
 }
